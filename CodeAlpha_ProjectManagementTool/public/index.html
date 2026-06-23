@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>TaskAlpha — Project Management</title><link rel="stylesheet" href="style.css"/></head>
+<body>
+<nav class="topbar"><div class="logo">Task<span>Alpha</span></div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="notif-btn" onclick="toggleNotif()" id="notif-btn">🔔 <span class="ndot" id="ndot"></span></button>
+    <div class="user-chip"><div class="av">RS</div> Rahul</div>
+  </div>
+</nav>
+<div class="sidebar">
+  <div class="nav-item active" onclick="showView('dashboard',this)">📊 Dashboard</div>
+  <div class="nav-item" onclick="showView('projects',this)">📁 Projects</div>
+  <div class="nav-item" onclick="showView('mytasks',this)">✅ My Tasks</div>
+  <div class="nav-section">PROJECTS</div>
+  <div class="nav-item" onclick="openBoard('p1',this)"><span class="pdot" style="background:#185FA5"></span> CodeAlpha App</div>
+  <div class="nav-item" onclick="openBoard('p2',this)"><span class="pdot" style="background:#1D9E75"></span> Portfolio Site</div>
+</div>
+<div class="main">
+  <div id="view-dashboard">
+    <div class="page-header"><div class="page-title">Good morning, Rahul 👋</div>
+      <button class="btn btn-primary" onclick="showView('projects',null)">+ New Project</button></div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="sl">Total Projects</div><div class="sn">2</div></div>
+      <div class="stat-card"><div class="sl">Open Tasks</div><div class="sn">4</div></div>
+      <div class="stat-card"><div class="sl">Completed</div><div class="sn">2</div></div>
+      <div class="stat-card"><div class="sl">Overdue</div><div class="sn" style="color:#A32D2D">1</div></div>
+    </div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:10px">Recent Activity</div>
+    <div class="card" id="activity"></div>
+  </div>
+  <div id="view-projects" style="display:none">
+    <div class="page-header"><div class="page-title">Projects</div>
+      <button class="btn btn-primary" onclick="openNewProject()">+ New Project</button></div>
+    <div class="proj-grid" id="proj-grid"></div>
+  </div>
+  <div id="view-mytasks" style="display:none">
+    <div class="page-header"><div class="page-title">My Tasks</div></div>
+    <div id="my-tasks"></div>
+  </div>
+  <div id="view-board" style="display:none">
+    <div class="page-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="btn" onclick="showView('projects',null)">← Back</button>
+        <div class="page-title" id="board-title"></div>
+      </div>
+      <button class="btn btn-primary" onclick="openNewTask()">+ Add Task</button>
+    </div>
+    <div class="board-cols" id="board-cols"></div>
+  </div>
+</div>
+<div class="notif-panel" id="notif-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <span style="font-size:13px;font-weight:600">Notifications</span>
+    <button onclick="clearNotifs()" style="background:none;border:none;font-size:11px;cursor:pointer;color:#999">Mark all read</button>
+  </div>
+  <div id="notif-list"></div>
+</div>
+<div class="modal-bg" id="task-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('task-modal')">×</button>
+    <div class="modal-title" id="tm-title">Task Detail</div>
+    <label class="field-label">Title</label><input id="tm-name" class="field-input"/>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label class="field-label">Assignee</label>
+        <select id="tm-assign" class="field-input"><option value="u1">Rahul Sharma</option><option value="u2">Priya Kapoor</option><option value="u3">Arjun Mehta</option><option value="u4">Sneha Rao</option></select></div>
+      <div><label class="field-label">Priority</label>
+        <select id="tm-priority" class="field-input"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+    </div>
+    <label class="field-label">Due Date</label><input type="date" id="tm-due" class="field-input"/>
+    <label class="field-label">Description</label><textarea id="tm-desc" class="field-input" rows="3"></textarea>
+    <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:8px">Comments</div>
+    <div id="tm-comments" style="max-height:140px;overflow-y:auto;margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px">
+      <input id="tm-ci" class="field-input" style="flex:1;margin:0" placeholder="Write a comment…" onkeydown="if(event.key==='Enter')addTaskComment()"/>
+      <button class="btn btn-primary" onclick="addTaskComment()">Send</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:14px">
+      <button class="btn" onclick="moveTaskNext()">Move to Next →</button>
+      <button class="btn btn-primary" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="project-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('project-modal')">×</button>
+    <div class="modal-title">New Project</div>
+    <label class="field-label">Project Name</label><input id="np-name" class="field-input" placeholder="e.g. Mobile App v2"/>
+    <label class="field-label">Description</label><textarea id="np-desc" class="field-input" rows="2"></textarea>
+    <label class="field-label">Color</label>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <div onclick="selColor('#185FA5',this)" style="width:24px;height:24px;border-radius:50%;background:#185FA5;cursor:pointer;border:2px solid #185FA5"></div>
+      <div onclick="selColor('#1D9E75',this)" style="width:24px;height:24px;border-radius:50%;background:#1D9E75;cursor:pointer"></div>
+      <div onclick="selColor('#D4537E',this)" style="width:24px;height:24px;border-radius:50%;background:#D4537E;cursor:pointer"></div>
+      <div onclick="selColor('#EF9F27',this)" style="width:24px;height:24px;border-radius:50%;background:#EF9F27;cursor:pointer"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="createProject()">Create Project</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body></html>
